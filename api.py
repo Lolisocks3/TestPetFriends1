@@ -2,7 +2,8 @@ import json
 import os
 import requests
 from requests_toolbelt.multipart.encoder import MultipartEncoder
-
+api_key = None
+result = None
 class PetFriends:
 
     def __init__(self):
@@ -16,12 +17,16 @@ class PetFriends:
         }
         res = requests.get(self.base_url + 'api/key', headers=headers)
         status = res.status_code
-        result = ""
         try:
             result = res.json()
         except json.decoder.JSONDecodeError:
             result = res.text
+        print('Status code:', status)
+        print('API key result:', result)
         return status, result
+
+
+
 
     def get_list_of_pets(self, auth_key: json, filter: str = "") -> json:
 
@@ -136,3 +141,4 @@ class PetFriends:
         except json.decoder.JSONDecodeError:
             result = res.text
         return status, result
+
