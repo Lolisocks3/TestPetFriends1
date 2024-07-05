@@ -2,12 +2,13 @@ from api import PetFriends
 from settings import valid_email, valid_password
 import pytest
 pf = PetFriends()
-
+#Тест на получение api ключа
 def test_get_api_key_for_valid_user(email=valid_email, password=valid_password):
     status, result = pf.get_api_key(email, password)
     assert status == 200
     assert 'key' in result
 
+#Тест на получение списка моих питомцев
 def test_get_all_pets_with_valid_key(filter=''):
     _, auth_key = pf.get_api_key(valid_email, valid_password)
     status, result = pf.get_list_of_pets(auth_key, filter)
@@ -22,7 +23,7 @@ def test_get_all_pets_with_valid_key(filter=''):
 def pet_data_valid(request):
     return request.param
 
-#Негативный тест с спецсимволами и пустыми значениями
+
 def test_add_new_pet_with_valid_data_and_photo(pet_data_valid):
     name, animal_type, age, pet_photo_path = pet_data_valid
     pet_photo = 'C:\\Users\\i_lov\\PycharmProjects\\pythonProject\\tests\\images\\Alex.jpg'
@@ -46,6 +47,7 @@ def test_xss_vulnerability(name="<script>alert('xss');</script>", animal_type='x
 def pet_data_unvalid(request):
     return request.param
 
+#Негативный тест с спецсимволами и пустыми значениями
 def test_add_new_pet_with_unvalid_data_and_photo(pet_data_unvalid):
     name, animal_type, age, pet_photo_path = pet_data_unvalid
     pet_photo = 'C:\\Users\\i_lov\\PycharmProjects\\pythonProject\\tests\\images\\Alex.jpg'
@@ -54,12 +56,14 @@ def test_add_new_pet_with_unvalid_data_and_photo(pet_data_unvalid):
     assert status == 200
     assert result['name'] == name
 
+#Тест создания питомца без фото
 def test_add_new_pet_with_valid_data_without_photo(name='Alex', animal_type='cat', age='3'):
     _, auth_key = pf.get_api_key(valid_email, valid_password)
     status, result = pf.add_new_pet_without_photo(auth_key, name, animal_type, age)
     assert status == 200
     assert result['name'] == name
 
+#Тест на удаление последнего созданного питомца
 def test_delete_self_pet():
     _, auth_key = pf.get_api_key(valid_email, valid_password)
     _, my_pets = pf.get_list_of_pets(auth_key, "my_pets")
@@ -74,6 +78,7 @@ def test_delete_self_pet():
     assert status == 200
     assert pet_id not in my_pets.values()
 
+#Тест на загрузку фотографии уже существующему питомцу
 @pytest.mark.xfail
 def test_load_photo_of_pet(pet_photo='images/NotAlex.jpg'):
     _, auth_key = pf.get_api_key(valid_email, valid_password)
@@ -88,6 +93,7 @@ def test_load_photo_of_pet(pet_photo='images/NotAlex.jpg'):
     _, pet_info = pf.get_pet_info(auth_key, pet_id)
     assert pet_info['pet_photo'] == f'images/pets/{pet_id}.jpg'
 
+#Тест на удаление всех своих питомцев
 def test_delete_all_self_pet():
     _, auth_key = pf.get_api_key(valid_email, valid_password)
     _, my_pets = pf.get_list_of_pets(auth_key, "my_pets")
